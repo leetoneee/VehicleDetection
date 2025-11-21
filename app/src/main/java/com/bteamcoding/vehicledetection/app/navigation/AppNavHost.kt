@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.bteamcoding.vehicledetection.feature_home.presentation.AboutScreenRoot
 import com.bteamcoding.vehicledetection.feature_home.presentation.HomeScreenRoot
 import com.bteamcoding.vehicledetection.feature_result.presentation.ResultScreenRoot
 
@@ -18,7 +19,9 @@ fun AppNavHost(
         composable(route = NavRoutes.HOME) {
             HomeScreenRoot(navController = navController)
         }
-        composable(route = NavRoutes.ABOUT) { }
+        composable(route = NavRoutes.ABOUT) {
+            AboutScreenRoot(navController = navController)
+        }
         composable(route = NavRoutes.CAPTURE) { }
         composable(route = NavRoutes.SELECT_TYPE) { }
         composable(route = NavRoutes.RESULT) {

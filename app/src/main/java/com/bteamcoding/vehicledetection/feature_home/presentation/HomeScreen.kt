@@ -52,7 +52,7 @@ fun HomeScreenRoot(
 ) {
     HomeScreen(
         onSelectImage = {},
-        onViewModelInfo = {},
+        onViewModelInfo = { navController.navigate(NavRoutes.ABOUT) },
         onCapture = {}
     )
 }
@@ -63,11 +63,12 @@ fun HomeScreen(
     onSelectImage: () -> Unit,
     onViewModelInfo: () -> Unit,
 ) {
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .verticalScroll(rememberScrollState())
     ) {
         // Header
         Box(
@@ -99,6 +100,7 @@ fun HomeScreen(
         Column(
             modifier = Modifier
                 .weight(1f)
+                .verticalScroll(scrollState)
                 .padding(horizontal = 24.dp, vertical = 24.dp)
                 .widthIn(max = 420.dp)
                 .align(Alignment.CenterHorizontally),
