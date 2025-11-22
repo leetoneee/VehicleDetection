@@ -1,5 +1,11 @@
 package com.bteamcoding.vehicledetection.feature_home.presentation
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -33,37 +39,82 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.bteamcoding.vehicledetection.app.navigation.NavRoutes
+import com.bteamcoding.vehicledetection.app.navigation.SelectTypeScreenParams
+import com.bteamcoding.vehicledetection.feature_camera.activity.CameraScreenActivity
 import com.bteamcoding.vehicledetection.ui.theme.VehicleDetectionTheme
 
 @Composable
 fun HomeScreenRoot(
-    navController: NavController
+    navController: NavController,
+    viewModel: HomeScreenViewModel = viewModel()
 ) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri = result.data?.getStringExtra("captured_uri")
+            if (uri != null) {
+                viewModel.onAction(HomeScreenAction.SetUri(Uri.parse(uri)))
+                navController.navigate(SelectTypeScreenParams(uri))
+            }
+        }
+    }
+
     HomeScreen(
-        onSelectImage = { navController.navigate(NavRoutes.SELECT_TYPE) },
+        onSelectImage = {
+            viewModel.onAction(HomeScreenAction.SetUri(it))
+            navController.navigate(SelectTypeScreenParams(it.toString()))
+        },
+        onCapture = {
+            val intent = Intent(context, CameraScreenActivity::class.java)
+            cameraLauncher.launch(intent)
+        },
         onViewModelInfo = { navController.navigate(NavRoutes.ABOUT) },
-        onCapture = {}
     )
 }
 
 @Composable
 fun HomeScreen(
     onCapture: () -> Unit,
-    onSelectImage: () -> Unit,
+    onSelectImage: (Uri) -> Unit,
     onViewModelInfo: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
+
+    //The URI of the photo that the user has picked
+    var photoUri: Uri? by remember { mutableStateOf(null) }
+
+    //The launcher we will use for the PickVisualMedia contract.
+    //When .launch()ed, this will display the photo picker.
+    val launcher =
+        rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+            //When the user has selected a photo, its URI is returned here
+            if (uri != null) {
+                photoUri = uri
+                onSelectImage(uri) // gọi trực tiếp
+            }
+        }
 
     Column(
         modifier = Modifier
@@ -166,7 +217,16 @@ fun HomeScreen(
 
                         // Select Button
                         Button(
-                            onClick = onSelectImage,
+                            onClick = {
+                                //On button press, launch the photo picker
+                                launcher.launch(
+                                    PickVisualMediaRequest(
+                                        //Here we request only photos. Change this to .ImageAndVideo if you want videos too.
+                                        //Or use .VideoOnly if you only want videos.
+                                        mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
+                                    )
+                                )
+                            },
                             modifier = Modifier
                                 .weight(1f)
                                 .height(128.dp),

@@ -1,7 +1,7 @@
 package com.bteamcoding.vehicledetection.feature_select_type.presentation
 
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Whatshot
 import androidx.compose.material3.Button
@@ -47,15 +46,20 @@ import com.bteamcoding.vehicledetection.ui.theme.VehicleDetectionTheme
 
 @Composable
 fun SelectImageTypeScreenRoot(
+    uri: String,
     navController: NavController
 ) {
+    val imagePath = Uri.parse(uri)
+
     SelectImageTypeScreen(
-        onBack = { navController.popBackStack()}
+        image = imagePath,
+        onBack = { navController.popBackStack() }
     )
 }
 
 @Composable
 fun SelectImageTypeScreen(
+    image: Uri,
     onBack: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
@@ -69,7 +73,7 @@ fun SelectImageTypeScreen(
             tonalElevation = 2.dp,
             shadowElevation = 2.dp
         ) {
-            Row (
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.White)
@@ -117,22 +121,8 @@ fun SelectImageTypeScreen(
                         .background(Color(0xFFE5E7EB)),
                     contentAlignment = Alignment.Center
                 ) {
-//                    AsyncImage(
-//                        model = imageUrl,
-//                        contentDescription = null,
-//                        modifier = Modifier.fillMaxSize(),
-//                        contentScale = ContentScale.Crop
-//                    )
-
-                    Image(
-                        painter = painterResource(R.drawable.example),
-                        contentDescription = null,
-                        contentScale = ContentScale.Inside,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
                     AsyncImage(
-                        model = "https://images.unsplash.com/photo-1671834214729-0bc0561ec4f4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080",
+                        model = image,
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop,
@@ -168,7 +158,7 @@ fun SelectImageTypeScreen(
 
                         // Thermal Button
                         Button(
-                            onClick = {  },
+                            onClick = { },
                             modifier = Modifier
                                 .weight(1f)
                                 .height(130.dp),
@@ -193,7 +183,7 @@ fun SelectImageTypeScreen(
 
                         // Color Button
                         Button(
-                            onClick = {  },
+                            onClick = { },
                             modifier = Modifier
                                 .weight(1f)
                                 .height(130.dp),
@@ -244,6 +234,7 @@ fun SelectImageTypeScreen(
 fun SelectImageTypeScreenPreview() {
     VehicleDetectionTheme {
         SelectImageTypeScreen(
+            image = Uri.parse(""),
             onBack = {}
         )
     }
