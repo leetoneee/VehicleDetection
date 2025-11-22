@@ -60,4 +60,11 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation (libs.androidx.constraintlayout.compose)
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.coil.compose)
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation (libs.androidx.camera.lifecycle)
+    implementation (libs.androidx.camera.video)
+    implementation (libs.androidx.camera.view)
+    implementation (libs.androidx.camera.extensions)
 }

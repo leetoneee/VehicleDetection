@@ -51,7 +51,7 @@ fun HomeScreenRoot(
     navController: NavController
 ) {
     HomeScreen(
-        onSelectImage = {},
+        onSelectImage = { navController.navigate(NavRoutes.SELECT_TYPE) },
         onViewModelInfo = { navController.navigate(NavRoutes.ABOUT) },
         onCapture = {}
     )

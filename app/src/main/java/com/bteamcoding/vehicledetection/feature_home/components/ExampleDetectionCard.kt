@@ -25,8 +25,8 @@ fun ExampleDetectionCard() {
             .fillMaxWidth()
             .border(
                 width = 1.dp,
-                color = Color(0xFFE5E7EB), // gray-200
-                shape = RoundedCornerShape(16.dp) // rounded-xl
+                color = Color(0xFFE5E7EB),
+                shape = RoundedCornerShape(16.dp)
             ),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
