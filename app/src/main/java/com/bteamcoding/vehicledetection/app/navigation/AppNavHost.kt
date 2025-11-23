@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.bteamcoding.vehicledetection.feature_home.presentation.AboutScreenRoot
 import com.bteamcoding.vehicledetection.feature_home.presentation.HomeScreenRoot
+import com.bteamcoding.vehicledetection.feature_result.presentation.ProcessingScreenRoot
 import com.bteamcoding.vehicledetection.feature_result.presentation.ResultScreenRoot
 import com.bteamcoding.vehicledetection.feature_select_type.presentation.SelectImageTypeScreenRoot
 import kotlinx.serialization.Serializable
@@ -25,7 +26,16 @@ fun AppNavHost(
         composable(route = NavRoutes.ABOUT) {
             AboutScreenRoot(navController = navController)
         }
-        composable(route = NavRoutes.CAPTURE) { }
+        composable<ProcessingScreenParams> {
+            val args = it.toRoute<ProcessingScreenParams>()
+
+            args.uri?.let { image ->
+                ProcessingScreenRoot(
+                    uri = image,
+                    navController = navController
+                )
+            }
+        }
         composable<SelectTypeScreenParams> {
             val args = it.toRoute<SelectTypeScreenParams>()
 
@@ -45,5 +55,10 @@ fun AppNavHost(
 
 @Serializable
 data class SelectTypeScreenParams(
+    val uri: String? = null
+)
+
+@Serializable
+data class ProcessingScreenParams(
     val uri: String? = null
 )

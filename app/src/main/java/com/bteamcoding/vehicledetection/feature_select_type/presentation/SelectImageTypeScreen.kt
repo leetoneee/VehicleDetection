@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.bteamcoding.vehicledetection.R
+import com.bteamcoding.vehicledetection.app.navigation.ProcessingScreenParams
 import com.bteamcoding.vehicledetection.ui.theme.VehicleDetectionTheme
 
 @Composable
@@ -53,7 +54,10 @@ fun SelectImageTypeScreenRoot(
 
     SelectImageTypeScreen(
         image = imagePath,
-        onBack = { navController.popBackStack() }
+        onBack = { navController.popBackStack() },
+        onChooseType = {
+            navController.navigate(ProcessingScreenParams(imagePath.toString()))
+        }
     )
 }
 
@@ -61,6 +65,7 @@ fun SelectImageTypeScreenRoot(
 fun SelectImageTypeScreen(
     image: Uri,
     onBack: () -> Unit,
+    onChooseType: (String) -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -158,7 +163,7 @@ fun SelectImageTypeScreen(
 
                         // Thermal Button
                         Button(
-                            onClick = { },
+                            onClick = { onChooseType("Thermal") },
                             modifier = Modifier
                                 .weight(1f)
                                 .height(130.dp),
@@ -183,7 +188,7 @@ fun SelectImageTypeScreen(
 
                         // Color Button
                         Button(
-                            onClick = { },
+                            onClick = { onChooseType("Color") },
                             modifier = Modifier
                                 .weight(1f)
                                 .height(130.dp),
@@ -235,7 +240,8 @@ fun SelectImageTypeScreenPreview() {
     VehicleDetectionTheme {
         SelectImageTypeScreen(
             image = Uri.parse(""),
-            onBack = {}
+            onBack = {},
+            onChooseType = {}
         )
     }
 }
