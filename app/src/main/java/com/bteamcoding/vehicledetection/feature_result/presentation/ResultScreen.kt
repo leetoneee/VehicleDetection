@@ -1,6 +1,8 @@
 package com.bteamcoding.vehicledetection.feature_result.presentation
 
 import android.net.Uri
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -39,14 +41,19 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,9 +65,16 @@ import com.bteamcoding.vehicledetection.app.navigation.NavRoutes
 import com.bteamcoding.vehicledetection.core.data.mockDetections
 import com.bteamcoding.vehicledetection.core.domain.model.Detection
 import com.bteamcoding.vehicledetection.core.domain.model.VehicleType
+import com.bteamcoding.vehicledetection.core.utils.saveBitmapToGallery
+import com.bteamcoding.vehicledetection.core.utils.shareBitmap
 import com.bteamcoding.vehicledetection.feature_result.components.DetectionList
 import com.bteamcoding.vehicledetection.ui.theme.VehicleDetectionTheme
+import dev.shreyaspatil.capturable.capturable
+import dev.shreyaspatil.capturable.controller.CaptureController
+import dev.shreyaspatil.capturable.controller.rememberCaptureController
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalComposeApi::class)
 @Composable
 fun ResultScreenRoot(
     uri: String,
@@ -69,6 +83,9 @@ fun ResultScreenRoot(
     navController: NavController
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val captureController = rememberCaptureController()
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     val imageUrl = Uri.parse(uri)
 
@@ -77,6 +94,7 @@ fun ResultScreenRoot(
     }
 
     ResultScreen(
+        captureController = captureController,
         imageUrl = imageUrl,
         imageType = type,
         allDetections = state.allDetections,
@@ -90,16 +108,46 @@ fun ResultScreenRoot(
                 launchSingleTop = true
             }
         },
-        onSave = {},
-        onShare = {},
+        onSave = {
+            // Capture content
+            scope.launch {
+                val bitmapAsync = captureController.captureAsync()
+                try {
+                    val bitmap = bitmapAsync.await()
+                    val savedUri = saveBitmapToGallery(context, bitmap.asAndroidBitmap())
+                    if (savedUri != null) {
+                        Toast.makeText(context, "Saved to Gallery!", Toast.LENGTH_SHORT).show()
+                    }
+
+                } catch (error: Throwable) {
+                    // Error occurred, do something.
+                    Log.e("Error in create bitmap: ", error.toString())
+                }
+            }
+        },
+        onShare = {
+            // Capture content
+            scope.launch {
+                val bitmapAsync = captureController.captureAsync()
+                try {
+                    val bitmap = bitmapAsync.await()
+                    shareBitmap(context, bitmap.asAndroidBitmap())
+                } catch (error: Throwable) {
+                    // Error occurred, do something.
+                    Log.e("Error in create bitmap: ", error.toString())
+                }
+            }
+        },
         onFilterChanged = {
             viewModel.onAction(ResultScreenAction.OnFilterChanged(it))
         }
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ResultScreen(
+    captureController: CaptureController,
     imageUrl: Uri,
     imageType: String,
     allDetections: List<Detection>,
@@ -233,13 +281,16 @@ fun ResultScreen(
                         .background(Color.Black)
                         .aspectRatio(3f / 4f)
                 ) {
-                    AsyncImage(
-                        model = imageUrl,
-                        contentDescription = "Detection result",
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier.align(Alignment.Center)
-//                        modifier = Modifier.fillMaxSize()
-                    )
+                    Box(modifier = Modifier
+                        .align(Alignment.Center)
+                        .capturable(captureController)) {
+                        AsyncImage(
+                            model = imageUrl,
+                            contentDescription = "Detection result",
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
 
                     // Zoom controls (mock)
                     Row(
@@ -306,6 +357,7 @@ fun SmallIconButton(icon: ImageVector, onClick: () -> Unit) {
 fun ResultScreenPreview() {
     VehicleDetectionTheme {
         ResultScreen(
+            captureController = CaptureController(),
             onBack = {},
             imageUrl = Uri.parse(""),
             imageType = "",
