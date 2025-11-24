@@ -56,7 +56,7 @@ fun SelectImageTypeScreenRoot(
         image = imagePath,
         onBack = { navController.popBackStack() },
         onChooseType = {
-            navController.navigate(ProcessingScreenParams(imagePath.toString()))
+            navController.navigate(ProcessingScreenParams(uri = imagePath.toString(), type = it))
         }
     )
 }
@@ -163,7 +163,7 @@ fun SelectImageTypeScreen(
 
                         // Thermal Button
                         Button(
-                            onClick = { onChooseType("Thermal") },
+                            onClick = { onChooseType("thermal") },
                             modifier = Modifier
                                 .weight(1f)
                                 .height(130.dp),
@@ -188,7 +188,7 @@ fun SelectImageTypeScreen(
 
                         // Color Button
                         Button(
-                            onClick = { onChooseType("Color") },
+                            onClick = { onChooseType("color") },
                             modifier = Modifier
                                 .weight(1f)
                                 .height(130.dp),

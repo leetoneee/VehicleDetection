@@ -29,11 +29,14 @@ fun AppNavHost(
         composable<ProcessingScreenParams> {
             val args = it.toRoute<ProcessingScreenParams>()
 
-            args.uri?.let { image ->
-                ProcessingScreenRoot(
-                    uri = image,
-                    navController = navController
-                )
+            args.uri?.let { it1 ->
+                args.type?.let { it2 ->
+                    ProcessingScreenRoot(
+                        uri = it1,
+                        type = it2,
+                        navController = navController
+                    )
+                }
             }
         }
         composable<SelectTypeScreenParams> {
@@ -47,8 +50,18 @@ fun AppNavHost(
             }
 
         }
-        composable(route = NavRoutes.RESULT) {
-            ResultScreenRoot(navController = navController)
+        composable<ResultScreenParams> {
+            val args = it.toRoute<ResultScreenParams>()
+
+            args.uri?.let { it1 ->
+                args.type?.let { it2 ->
+                    ResultScreenRoot(
+                        uri = it1,
+                        type = it2,
+                        navController = navController
+                    )
+                }
+            }
         }
     }
 }
@@ -60,5 +73,12 @@ data class SelectTypeScreenParams(
 
 @Serializable
 data class ProcessingScreenParams(
-    val uri: String? = null
+    val uri: String? = null,
+    val type: String? = null
+)
+
+@Serializable
+data class ResultScreenParams(
+    val uri: String? = null,
+    val type: String? = null
 )

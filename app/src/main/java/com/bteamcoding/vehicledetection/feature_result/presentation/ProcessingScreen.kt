@@ -51,19 +51,22 @@ import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.bteamcoding.vehicledetection.R
+import com.bteamcoding.vehicledetection.app.navigation.NavRoutes
+import com.bteamcoding.vehicledetection.app.navigation.ResultScreenParams
 import com.bteamcoding.vehicledetection.ui.theme.VehicleDetectionTheme
 import kotlinx.coroutines.delay
 
 @Composable
 fun ProcessingScreenRoot(
     uri: String,
+    type: String,
     navController: NavController
 ) {
     val imagePath = Uri.parse(uri)
 
     LaunchedEffect(Unit) {
         delay(5000) //5s
-//        navController.navigate()
+        navController.navigate(ResultScreenParams(uri = uri, type = type))
     }
 
     ProcessingScreen(
