@@ -66,6 +66,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -88,7 +89,7 @@ import kotlinx.coroutines.launch
 fun ResultScreenRoot(
     uri: String,
     type: String,
-    viewModel: ResultScreenViewModel = viewModel(),
+    viewModel: ResultScreenViewModel = hiltViewModel(),
     navController: NavController
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()

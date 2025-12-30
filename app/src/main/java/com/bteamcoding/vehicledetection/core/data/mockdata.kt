@@ -6,33 +6,51 @@ import com.bteamcoding.vehicledetection.core.domain.model.VehicleType
 
 val mockDetections = listOf(
     Detection(
-        id = "1",
+        id = "64b7a3fb-75f5-4de3-9e19-c09df104d899",
         clazz = VehicleType.CAR,
-        confidence = 94.5,
-        bbox = BoundingBox(x = 120, y = 180, width = 180, height = 140)
+        confidence = 90.6,
+        bbox = BoundingBox(x = 330, y = 199, width = 35, height = 59)
     ),
     Detection(
-        id = "2",
-        clazz = VehicleType.TRUCK,
-        confidence = 89.2,
-        bbox = BoundingBox(x = 450, y = 200, width = 240, height = 200)
+        id = "e3de6c60-ec82-468f-ac3b-9f73026df526",
+        clazz = VehicleType.CAR,
+        confidence = 89.1,
+        bbox = BoundingBox(x = 142, y = 458, width = 42, height = 66)
     ),
     Detection(
-        id = "3",
+        id = "f8ceb823-038b-4a86-9a66-ed9900843da9",
+        clazz = VehicleType.CAR,
+        confidence = 86.1,
+        bbox = BoundingBox(x = 263, y = 437, width = 35, height = 71)
+    ),
+    Detection(
+        id = "1ec3e8b9-01a2-467e-96c8-cae491065fc3",
+        clazz = VehicleType.CAR,
+        confidence = 86.0,
+        bbox = BoundingBox(x = 212, y = 180, width = 41, height = 66)
+    ),
+    Detection(
+        id = "9f065613-c416-421c-82d2-5c6159783184",
+        clazz = VehicleType.CAR,
+        confidence = 85.8,
+        bbox = BoundingBox(x = 265, y = 124, width = 31, height = 49)
+    ),
+    Detection(
+        id = "1da9ff8c-3baf-4cb9-b09a-c89b51848354",
         clazz = VehicleType.BUS,
-        confidence = 91.8,
-        bbox = BoundingBox(x = 780, y = 190, width = 280, height = 220)
+        confidence = 81.8,
+        bbox = BoundingBox(x = 159, y = 287, width = 76, height = 179)
     ),
     Detection(
-        id = "4",
-        clazz = VehicleType.CAR,
-        confidence = 87.3,
-        bbox = BoundingBox(x = 320, y = 350, width = 160, height = 120)
+        id = "06ad0605-69e8-46c6-b389-4174078cf5c0",
+        clazz = VehicleType.TRUCK,
+        confidence = 64.9,
+        bbox = BoundingBox(x = 162, y = 262, width = 67, height = 212)
     ),
     Detection(
-        id = "5",
+        id = "f5a44188-e1d7-4119-a2e2-f49391fbc885",
         clazz = VehicleType.VAN,
-        confidence = 82.6,
-        bbox = BoundingBox(x = 600, y = 380, width = 170, height = 150)
+        confidence = 52.3,
+        bbox = BoundingBox(x = 684, y = 510, width = 71, height = 32)
     )
 )
