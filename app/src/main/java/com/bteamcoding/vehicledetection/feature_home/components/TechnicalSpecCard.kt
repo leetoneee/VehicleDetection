@@ -35,8 +35,8 @@ fun TechnicalSpecCard() {
 
             Spacer(Modifier.height(16.dp))
 
-            SpecRow("Architecture", "DA2OD")
-            SpecRow("Input Size", "640x640")
+            SpecRow("Architecture", "D3T")
+            SpecRow("Input Size", "840x712")
             SpecRow("Training Dataset", "DroneVehicle dataset")
             SpecRow("Framework", "PyTorch", showDivider = false)
         }

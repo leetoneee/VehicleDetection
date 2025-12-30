@@ -152,7 +152,7 @@ fun AboutScreen(
 
                     Column {
                         Text(
-                            "DA2OD Vehicle Detector",
+                            "D3T Vehicle Detector",
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
                             color = Color(0xFF111827)
