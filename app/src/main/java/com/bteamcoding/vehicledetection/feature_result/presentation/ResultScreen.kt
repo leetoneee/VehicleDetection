@@ -7,6 +7,9 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -44,14 +47,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -270,6 +279,40 @@ fun ResultScreen(
                 .verticalScroll(scrollState)
                 .padding(16.dp)
         ) {
+            var zoomState by remember { mutableStateOf(ZoomState()) }
+
+            val transformableState = rememberTransformableState { zoomChange, panChange, _ ->
+                zoomState = zoomState.copy(
+                    scale = (zoomState.scale * zoomChange).coerceIn(1f, 6f),
+                    offset = zoomState.offset + panChange
+                )
+            }
+
+            val doubleTapZoom: (Offset) -> Unit = { tapOffset ->
+                zoomState = if (zoomState.scale < 2f) {
+                    ZoomState(
+                        scale = 2.5f,
+                        offset = zoomState.offset + (tapOffset - Offset.Zero) * 1.0f
+                    )
+                } else {
+                    ZoomState()
+                }
+            }
+
+            fun zoomIn() {
+                zoomState = zoomState.copy(
+                    scale = (zoomState.scale + 0.5f).coerceIn(1f, 6f)
+                )
+            }
+
+            fun zoomOut() {
+                zoomState = zoomState.copy(
+                    scale = (zoomState.scale - 0.5f).coerceIn(1f, 6f),
+                    offset = Offset.Zero.takeIf { zoomState.scale <= 1.1f } ?: zoomState.offset
+                )
+            }
+
+
             /** ----- IMAGE VIEW WITH ZOOM (Tối giản) ----- */
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -281,14 +324,28 @@ fun ResultScreen(
                         .background(Color.Black)
                         .aspectRatio(3f / 4f)
                 ) {
-                    Box(modifier = Modifier
-                        .align(Alignment.Center)
-                        .capturable(captureController)) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .capturable(captureController)
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onDoubleTap = { offset -> doubleTapZoom(offset) }
+                                )
+                            }
+                            .graphicsLayer {
+                                scaleX = zoomState.scale
+                                scaleY = zoomState.scale
+                                translationX = zoomState.offset.x
+                                translationY = zoomState.offset.y
+                            }
+                            .transformable(transformableState)
+                    ) {
                         AsyncImage(
                             model = imageUrl,
                             contentDescription = "Detection result",
                             contentScale = ContentScale.Fit,
-                            modifier = Modifier.align(Alignment.Center)
+                            modifier = Modifier.fillMaxSize()
                         )
                     }
 
@@ -299,8 +356,8 @@ fun ResultScreen(
                             .padding(12.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        SmallIconButton(icon = Icons.Default.ZoomOut) { }
-                        SmallIconButton(icon = Icons.Default.ZoomIn) { }
+                        SmallIconButton(icon = Icons.Default.ZoomOut, onClick = { zoomOut() })
+                        SmallIconButton(icon = Icons.Default.ZoomIn, onClick = { zoomIn() })
                     }
                 }
             }
@@ -312,6 +369,7 @@ fun ResultScreen(
         }
     }
 }
+
 
 @Composable
 fun FilterChip(
