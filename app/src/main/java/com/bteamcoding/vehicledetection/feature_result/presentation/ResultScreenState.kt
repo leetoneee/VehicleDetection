@@ -6,7 +6,10 @@ import com.bteamcoding.vehicledetection.core.domain.model.Detection
 data class ResultScreenState (
     val selectedFilter: String = "all",
     val allDetections: List<Detection> = listOf(),
-    val detections: List<Detection> = listOf()
+    val detections: List<Detection> = listOf(),
+    val isProcessing: Boolean = true,
+    val imageWidth: Int = 0,
+    val imageHeight: Int = 0
 )
 
 data class ZoomState(

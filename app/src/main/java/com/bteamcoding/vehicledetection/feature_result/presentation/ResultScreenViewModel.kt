@@ -66,13 +66,31 @@ class ResultScreenViewModel @Inject constructor(
                 viewModelScope.launch {
                     runCatching {
                         if (imageBytes != null) {
-                            inferImage(
+                            val result = inferImage(
                                 imageBytes,
                                 fileName,
                                 0.5f
                             )
+
+                            if (result != null)
+                                _state.update {
+                                    it.copy(
+                                        detections = result.detections,
+                                        allDetections = result.detections,
+                                        imageWidth = result.imageWidth,
+                                        imageHeight = result.imageHeight
+                                    )
+                                }
                         }
                     }
+                }
+            }
+
+            is ResultScreenAction.OnIsProcessingChanged -> {
+                _state.update {
+                    it.copy(
+                        isProcessing = action.value
+                    )
                 }
             }
         }
@@ -82,19 +100,29 @@ class ResultScreenViewModel @Inject constructor(
         imageBytes: ByteArray,
         fileName: String,
         threshold: Float
-    ) {
-        Log.i("results detections", imageBytes.toString())
-        Log.i("results detections", fileName.toString())
-        Log.i("results detections", threshold.toString())
-        val response = run {
-            inferImageUseCase(imageBytes, fileName, threshold)
+    ): InferResult? {
+
+        val response = inferImageUseCase(imageBytes, fileName, threshold)
+
+        if (response.code == 200 && response.result != null) {
+
+            val detections = response.result.detections
+                ?.map { it.toDomain() }
+                ?: emptyList()
+
+            return InferResult(
+                detections = detections,
+                imageWidth = response.result.imageWidth,
+                imageHeight = response.result.imageHeight
+            )
         }
-        Log.i("results detections", response.toString())
-        if (response.code == 200) {
-            val detections: List<Detection>? = response.result?.detections?.map { it.toDomain() }
-            Log.i("results detections", detections.toString())
-        } else {
-            throw Exception("Infer image failed with code ${response.code} and message:\n ${response.message}")
-        }
+
+        return null
     }
 }
+
+data class InferResult(
+    val detections: List<Detection>,
+    val imageWidth: Int,
+    val imageHeight: Int
+)

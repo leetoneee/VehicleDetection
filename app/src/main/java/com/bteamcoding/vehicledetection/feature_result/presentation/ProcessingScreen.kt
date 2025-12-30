@@ -63,17 +63,15 @@ import kotlinx.coroutines.delay
 fun ProcessingScreenRoot(
     uri: String,
     type: String,
-    viewModel: ResultScreenViewModel = hiltViewModel(),
     navController: NavController
 ) {
     val imagePath = Uri.parse(uri)
-    val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        viewModel.onAction(ResultScreenAction.OnInferImage(imagePath, context))
-        delay(5000) //5s
-        navController.navigate(ResultScreenParams(uri = uri, type = type))
-    }
+//    LaunchedEffect(Unit) {
+////        viewModel.onAction(ResultScreenAction.OnInferImage(imagePath, context))
+//        delay(5000) //5s
+//        navController.navigate(ResultScreenParams(uri = uri, type = type))
+//    }
 
     ProcessingScreen(
         image = imagePath

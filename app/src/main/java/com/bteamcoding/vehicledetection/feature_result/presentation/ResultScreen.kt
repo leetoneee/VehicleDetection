@@ -78,10 +78,12 @@ import com.bteamcoding.vehicledetection.core.domain.model.VehicleType
 import com.bteamcoding.vehicledetection.core.utils.saveBitmapToGallery
 import com.bteamcoding.vehicledetection.core.utils.shareBitmap
 import com.bteamcoding.vehicledetection.feature_result.components.DetectionList
+import com.bteamcoding.vehicledetection.feature_result.components.DetectionOverlay
 import com.bteamcoding.vehicledetection.ui.theme.VehicleDetectionTheme
 import dev.shreyaspatil.capturable.capturable
 import dev.shreyaspatil.capturable.controller.CaptureController
 import dev.shreyaspatil.capturable.controller.rememberCaptureController
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeApi::class)
@@ -100,58 +102,68 @@ fun ResultScreenRoot(
     val imageUrl = Uri.parse(uri)
 
     LaunchedEffect(Unit) {
-        viewModel.onAction(ResultScreenAction.OnLoadAllDetections(mockDetections))
+        viewModel.onAction(ResultScreenAction.OnInferImage(imageUrl, context))
+        delay(3000) //3s
+        viewModel.onAction(ResultScreenAction.OnIsProcessingChanged(false))
     }
 
-    ResultScreen(
-        captureController = captureController,
-        imageUrl = imageUrl,
-        imageType = type,
-        allDetections = state.allDetections,
-        detections = state.detections,
-        selectedFilter = state.selectedFilter,
-        onBack = {
-            navController.navigate(NavRoutes.HOME) {
-                popUpTo(0) {
-                    inclusive = true
-                }
-                launchSingleTop = true
-            }
-        },
-        onSave = {
-            // Capture content
-            scope.launch {
-                val bitmapAsync = captureController.captureAsync()
-                try {
-                    val bitmap = bitmapAsync.await()
-                    val savedUri = saveBitmapToGallery(context, bitmap.asAndroidBitmap())
-                    if (savedUri != null) {
-                        Toast.makeText(context, "Saved to Gallery!", Toast.LENGTH_SHORT).show()
+    if (state.isProcessing) {
+        ProcessingScreen(
+            image = imageUrl
+        )
+    } else {
+        ResultScreen(
+            captureController = captureController,
+            imageUrl = imageUrl,
+            imageWidth = state.imageWidth,
+            imageHeight = state.imageHeight,
+            imageType = type,
+            allDetections = state.allDetections,
+            detections = state.detections,
+            selectedFilter = state.selectedFilter,
+            onBack = {
+                navController.navigate(NavRoutes.HOME) {
+                    popUpTo(0) {
+                        inclusive = true
                     }
+                    launchSingleTop = true
+                }
+            },
+            onSave = {
+                // Capture content
+                scope.launch {
+                    val bitmapAsync = captureController.captureAsync()
+                    try {
+                        val bitmap = bitmapAsync.await()
+                        val savedUri = saveBitmapToGallery(context, bitmap.asAndroidBitmap())
+                        if (savedUri != null) {
+                            Toast.makeText(context, "Saved to Gallery!", Toast.LENGTH_SHORT).show()
+                        }
 
-                } catch (error: Throwable) {
-                    // Error occurred, do something.
-                    Log.e("Error in create bitmap: ", error.toString())
+                    } catch (error: Throwable) {
+                        // Error occurred, do something.
+                        Log.e("Error in create bitmap: ", error.toString())
+                    }
                 }
-            }
-        },
-        onShare = {
-            // Capture content
-            scope.launch {
-                val bitmapAsync = captureController.captureAsync()
-                try {
-                    val bitmap = bitmapAsync.await()
-                    shareBitmap(context, bitmap.asAndroidBitmap())
-                } catch (error: Throwable) {
-                    // Error occurred, do something.
-                    Log.e("Error in create bitmap: ", error.toString())
+            },
+            onShare = {
+                // Capture content
+                scope.launch {
+                    val bitmapAsync = captureController.captureAsync()
+                    try {
+                        val bitmap = bitmapAsync.await()
+                        shareBitmap(context, bitmap.asAndroidBitmap())
+                    } catch (error: Throwable) {
+                        // Error occurred, do something.
+                        Log.e("Error in create bitmap: ", error.toString())
+                    }
                 }
+            },
+            onFilterChanged = {
+                viewModel.onAction(ResultScreenAction.OnFilterChanged(it))
             }
-        },
-        onFilterChanged = {
-            viewModel.onAction(ResultScreenAction.OnFilterChanged(it))
-        }
-    )
+        )
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -160,6 +172,8 @@ fun ResultScreen(
     captureController: CaptureController,
     imageUrl: Uri,
     imageType: String,
+    imageWidth: Int,
+    imageHeight: Int,
     allDetections: List<Detection>,
     detections: List<Detection>,
     selectedFilter: String,
@@ -348,6 +362,13 @@ fun ResultScreen(
                             contentScale = ContentScale.Fit,
                             modifier = Modifier.fillMaxSize()
                         )
+
+                        DetectionOverlay(
+                            detections = detections,
+                            imageWidth = imageWidth,
+                            imageHeight = imageHeight,
+                            modifier = Modifier.fillMaxSize()
+                        )
                     }
 
                     // Zoom controls (mock)
@@ -425,7 +446,9 @@ fun ResultScreenPreview() {
             selectedFilter = "all",
             onSave = {},
             onShare = {},
-            onFilterChanged = {}
+            onFilterChanged = {},
+            imageWidth = 0,
+            imageHeight = 0
         )
     }
 }

@@ -40,7 +40,7 @@ fun DetectionDto.toDomain(): Detection {
     return Detection(
         id = UUID.randomUUID().toString(),
         clazz = className.toVehicleType(),
-        confidence = confidence.roundToInt(),
+        confidence = (confidence * 100).roundToInt(),
         bbox = BoundingBox(
             x = x1.roundToInt(),
             y = y1.roundToInt(),

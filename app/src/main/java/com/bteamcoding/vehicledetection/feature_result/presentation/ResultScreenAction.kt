@@ -9,4 +9,5 @@ sealed interface ResultScreenAction {
     data class OnLoadAllDetections(val loadedDetections: List<Detection>) : ResultScreenAction
     data class OnFilterChanged(val type: String) : ResultScreenAction
     data class OnInferImage(val uri: Uri, val context: Context) : ResultScreenAction
+    data class OnIsProcessingChanged(val value: Boolean) : ResultScreenAction
 }

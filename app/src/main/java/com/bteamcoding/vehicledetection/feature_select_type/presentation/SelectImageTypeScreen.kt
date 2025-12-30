@@ -43,6 +43,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.bteamcoding.vehicledetection.R
 import com.bteamcoding.vehicledetection.app.navigation.ProcessingScreenParams
+import com.bteamcoding.vehicledetection.app.navigation.ResultScreenParams
 import com.bteamcoding.vehicledetection.ui.theme.VehicleDetectionTheme
 
 @Composable
@@ -56,7 +57,7 @@ fun SelectImageTypeScreenRoot(
         image = imagePath,
         onBack = { navController.popBackStack() },
         onChooseType = {
-            navController.navigate(ProcessingScreenParams(uri = imagePath.toString(), type = it))
+            navController.navigate(ResultScreenParams(uri = imagePath.toString(), type = it))
         }
     )
 }
