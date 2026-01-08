@@ -41,15 +41,10 @@ import com.bteamcoding.vehicledetection.ui.theme.VehicleDetectionTheme
 
 @Composable
 fun DetectionList(
-    detections: List<Detection>
+    detections: List<Detection>,
+    expandedIds: Set<String>,
+    onToggleExpand: (String) -> Unit
 ) {
-    val expandedIds = remember { mutableStateOf(setOf<String>()) }
-
-    fun toggleExpanded(id: String) {
-        expandedIds.value =
-            if (expandedIds.value.contains(id)) expandedIds.value - id
-            else expandedIds.value + id
-    }
 
     if (detections.isEmpty()) {
         Card(
@@ -85,7 +80,7 @@ fun DetectionList(
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             detections.forEachIndexed { index, detection ->
 
-                val isExpanded = expandedIds.value.contains(detection.id)
+                val isExpanded = expandedIds.contains(detection.id)
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -170,7 +165,7 @@ fun DetectionList(
                                 }
                             }
 
-                            IconButton(onClick = { toggleExpanded(detection.id) }) {
+                            IconButton(onClick = { onToggleExpand(detection.id) }) {
                                 Icon(
                                     imageVector = if (isExpanded)
                                         Icons.Default.KeyboardArrowUp
@@ -255,7 +250,9 @@ fun BboxRow(label: String, value: Number, modifier: Modifier) {
 fun DetectionListPreview() {
     VehicleDetectionTheme {
         DetectionList(
-            detections = mockDetections
+            detections = mockDetections,
+            expandedIds = setOf(),
+            onToggleExpand = {}
         )
     }
 }

@@ -101,6 +101,20 @@ class ResultScreenViewModel @Inject constructor(
                     )
                 }
             }
+
+            is ResultScreenAction.OnToggleExpand -> {
+                _state.update {
+                    val newExpanded =
+                        if (it.expandedIds.contains(action.detectionId))
+                            it.expandedIds - action.detectionId
+                        else
+                            it.expandedIds + action.detectionId
+
+                    it.copy(
+                        expandedIds = newExpanded
+                    )
+                }
+            }
         }
     }
 

@@ -41,6 +41,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -164,6 +165,10 @@ fun ResultScreenRoot(
                     }
                 }
             },
+            expandedIds = state.expandedIds,
+            onToggleExpand = {
+                viewModel.onAction(ResultScreenAction.OnToggleExpand(it))
+            },
             onFilterChanged = {
                 viewModel.onAction(ResultScreenAction.OnFilterChanged(it))
             }
@@ -180,6 +185,7 @@ fun ResultScreen(
     imageWidth: Int,
     imageHeight: Int,
     showLabel: Boolean,
+    expandedIds: Set<String>,
     allDetections: List<Detection>,
     detections: List<Detection>,
     selectedFilter: String,
@@ -187,6 +193,7 @@ fun ResultScreen(
     onSave: () -> Unit,
     onShare: () -> Unit,
     onToggleShowLabel: (Boolean) -> Unit,
+    onToggleExpand: (String) -> Unit,
     onFilterChanged: (String) -> Unit
 ) {
     val scrollState = rememberScrollState()
@@ -375,6 +382,7 @@ fun ResultScreen(
                             imageWidth = imageWidth,
                             imageHeight = imageHeight,
                             showLabel = showLabel,
+                            expandedIds = expandedIds,
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -402,7 +410,11 @@ fun ResultScreen(
             )
 
             /** ----- DETECTION LIST ----- */
-            DetectionList(detections = detections)
+            DetectionList(
+                detections = detections,
+                expandedIds = expandedIds,
+                onToggleExpand = { onToggleExpand(it) }
+            )
         }
     }
 }
@@ -414,13 +426,13 @@ fun LabelToggleOverlay(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+        modifier = Modifier.padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = "Show Label",
-            color = Color.Black,
-            fontSize = 13.sp
+            color = Color(0xFF111827),
+            style = MaterialTheme.typography.titleMedium,
         )
         Spacer(modifier = Modifier.width(8.dp))
         Switch(
@@ -488,7 +500,9 @@ fun ResultScreenPreview() {
             imageWidth = 0,
             imageHeight = 0,
             showLabel = true,
-            onToggleShowLabel = {}
+            onToggleShowLabel = {},
+            expandedIds = setOf(),
+            onToggleExpand = {}
         )
     }
 }

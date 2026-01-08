@@ -20,8 +20,16 @@ fun DetectionOverlay(
     imageWidth: Int,
     imageHeight: Int,
     showLabel: Boolean,
+    expandedIds: Set<String>,
     modifier: Modifier = Modifier
 ) {
+    val visibleDetections =
+        if (expandedIds.isEmpty()) {
+            detections
+        } else {
+            detections.filter { it.id in expandedIds }
+        }
+
     Canvas(modifier = modifier) {
 
         if (imageWidth == 0 || imageHeight == 0) return@Canvas
@@ -37,7 +45,7 @@ fun DetectionOverlay(
         val offsetX = (size.width - renderedWidth) / 2f
         val offsetY = (size.height - renderedHeight) / 2f
 
-        detections.forEach { detection ->
+        visibleDetections.forEach { detection ->
             val box = detection.bbox
 
             val left = offsetX + box.x * scale

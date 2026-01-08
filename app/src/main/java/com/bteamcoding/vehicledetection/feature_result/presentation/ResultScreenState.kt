@@ -10,7 +10,8 @@ data class ResultScreenState (
     val isProcessing: Boolean = true,
     val imageWidth: Int = 0,
     val imageHeight: Int = 0,
-    val showLabel: Boolean = true
+    val showLabel: Boolean = true,
+    val expandedIds: Set<String> = emptySet(),
 )
 
 data class ZoomState(
