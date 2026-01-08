@@ -42,6 +42,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ExperimentalComposeApi
@@ -121,6 +122,10 @@ fun ResultScreenRoot(
             allDetections = state.allDetections,
             detections = state.detections,
             selectedFilter = state.selectedFilter,
+            showLabel = state.showLabel,
+            onToggleShowLabel = {
+                viewModel.onAction(ResultScreenAction.OnChangeShowLabel(it))
+            },
             onBack = {
                 navController.navigate(NavRoutes.HOME) {
                     popUpTo(0) {
@@ -174,12 +179,14 @@ fun ResultScreen(
     imageType: String,
     imageWidth: Int,
     imageHeight: Int,
+    showLabel: Boolean,
     allDetections: List<Detection>,
     detections: List<Detection>,
     selectedFilter: String,
     onBack: () -> Unit,
     onSave: () -> Unit,
     onShare: () -> Unit,
+    onToggleShowLabel: (Boolean) -> Unit,
     onFilterChanged: (String) -> Unit
 ) {
     val scrollState = rememberScrollState()
@@ -328,7 +335,7 @@ fun ResultScreen(
             }
 
 
-            /** ----- IMAGE VIEW WITH ZOOM (Tối giản) ----- */
+            /** ----- IMAGE VIEW WITH ZOOM  ----- */
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -367,6 +374,7 @@ fun ResultScreen(
                             detections = detections,
                             imageWidth = imageWidth,
                             imageHeight = imageHeight,
+                            showLabel = showLabel,
                             modifier = Modifier.fillMaxSize()
                         )
                     }
@@ -386,9 +394,39 @@ fun ResultScreen(
 
             Spacer(Modifier.height(20.dp))
 
+            HorizontalDivider(thickness = 1.dp)
+
+            LabelToggleOverlay(
+                showLabel = showLabel,
+                onToggle = onToggleShowLabel
+            )
+
             /** ----- DETECTION LIST ----- */
             DetectionList(detections = detections)
         }
+    }
+}
+
+@Composable
+fun LabelToggleOverlay(
+    showLabel: Boolean,
+    onToggle: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Show Label",
+            color = Color.Black,
+            fontSize = 13.sp
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Switch(
+            checked = showLabel,
+            onCheckedChange = { onToggle(!showLabel) }
+        )
     }
 }
 
@@ -448,7 +486,9 @@ fun ResultScreenPreview() {
             onShare = {},
             onFilterChanged = {},
             imageWidth = 0,
-            imageHeight = 0
+            imageHeight = 0,
+            showLabel = true,
+            onToggleShowLabel = {}
         )
     }
 }

@@ -12,26 +12,38 @@ import androidx.compose.ui.unit.dp
 import com.bteamcoding.vehicledetection.core.domain.model.Detection
 import com.bteamcoding.vehicledetection.core.domain.model.VehicleType
 import kotlin.math.max
+import kotlin.math.min
 
 @Composable
 fun DetectionOverlay(
     detections: List<Detection>,
     imageWidth: Int,
     imageHeight: Int,
+    showLabel: Boolean,
     modifier: Modifier = Modifier
 ) {
     Canvas(modifier = modifier) {
 
-        val scaleX = size.width / imageWidth
-        val scaleY = size.height / imageHeight
+        if (imageWidth == 0 || imageHeight == 0) return@Canvas
+
+        val scale = min(
+            size.width / imageWidth,
+            size.height / imageHeight
+        )
+
+        val renderedWidth = imageWidth * scale
+        val renderedHeight = imageHeight * scale
+
+        val offsetX = (size.width - renderedWidth) / 2f
+        val offsetY = (size.height - renderedHeight) / 2f
 
         detections.forEach { detection ->
             val box = detection.bbox
 
-            val left = box.x * scaleX
-            val top = box.y * scaleY
-            val width = box.width * scaleX
-            val height = box.height * scaleY
+            val left = offsetX + box.x * scale
+            val top = offsetY + box.y * scale
+            val width = box.width * scale
+            val height = box.height * scale
 
             val color = when (detection.clazz) {
                 VehicleType.CAR -> Color(0xFF22C55E)
@@ -41,35 +53,51 @@ fun DetectionOverlay(
                 else -> Color.Red
             }
 
-            // Bounding box
+            /* ---------------- Bounding box ---------------- */
             drawRect(
                 color = color,
                 topLeft = Offset(left, top),
                 size = Size(width, height),
-                style = Stroke(width = 3.dp.toPx())
+                style = Stroke(width = max(2f, 3f * scale))
             )
 
-            // Label background
-//            drawRect(
-//                color = color.copy(alpha = 0.85f),
-//                topLeft = Offset(left, max(0f, top - 22.dp.toPx())),
-//                size = Size(width = 80.dp.toPx(), height = 22.dp.toPx())
-//            )
+            /* ---------------- Label ---------------- */
+            if (showLabel) {
 
-//            // Text
-//            drawContext.canvas.nativeCanvas.apply {
-//                drawText(
-//                    "${detection.clazz.name} ${(detection.confidence * 100).toInt()}%",
-//                    left + 6.dp.toPx(),
-//                    max(14.dp.toPx(), top - 6.dp.toPx()),
-//                    android.graphics.Paint().apply {
-//                        textSize = 12.sp.toPx()
-//                        color = android.graphics.Color.WHITE
-//                        isAntiAlias = true
-//                        typeface = android.graphics.Typeface.DEFAULT_BOLD
-//                    }
-//                )
-//            }
+                val label = "${detection.clazz}: ${(detection.confidence)}%"
+
+                val textSize = max(10f, 12f * scale)
+                val padding = 4f * scale
+                val labelHeight = textSize + padding * 2
+
+                val labelTop = max(
+                    offsetY,
+                    top - labelHeight
+                )
+
+                // Background
+                drawRect(
+                    color = color.copy(alpha = 0.85f),
+                    topLeft = Offset(left, labelTop),
+                    size = Size(
+                        width = label.length * textSize * 0.55f,
+                        height = labelHeight
+                    )
+                )
+
+                // Text
+                drawContext.canvas.nativeCanvas.drawText(
+                    label,
+                    left + padding,
+                    labelTop + labelHeight - padding,
+                    android.graphics.Paint().apply {
+                        this.textSize = textSize
+                        this.color = android.graphics.Color.WHITE
+                        isAntiAlias = true
+                        typeface = android.graphics.Typeface.DEFAULT_BOLD
+                    }
+                )
+            }
         }
     }
 }

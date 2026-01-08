@@ -9,7 +9,8 @@ data class ResultScreenState (
     val detections: List<Detection> = listOf(),
     val isProcessing: Boolean = true,
     val imageWidth: Int = 0,
-    val imageHeight: Int = 0
+    val imageHeight: Int = 0,
+    val showLabel: Boolean = true
 )
 
 data class ZoomState(

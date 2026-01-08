@@ -93,6 +93,14 @@ class ResultScreenViewModel @Inject constructor(
                     )
                 }
             }
+
+            is ResultScreenAction.OnChangeShowLabel -> {
+                _state.update {
+                    it.copy(
+                        showLabel = action.value
+                    )
+                }
+            }
         }
     }
 
